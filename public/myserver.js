@@ -1,5 +1,5 @@
 
-const mg = require( "./public/myjs/mgCRUD");
+const mg = require( "./myjs/mgCRUD");
 
 var express = require('express');
 var app = express();
