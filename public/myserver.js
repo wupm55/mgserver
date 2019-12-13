@@ -4,6 +4,27 @@ const mg = require( "./myjs/mgCRUD");
 var express = require('express');
 var app = express();
 
+var child =  require("child_process")
+function dec(str="pyData=s",func){
+
+    let spawn = child.spawn;
+    let process = spawn('python',["./myjs/jscallpy.py",
+        "mydecode", str] );
+    let result = '';
+    process.stdout.on('data', function(data) {
+         let o=(data.toString());
+        //let a=JSON.parse(o);
+        func(o)
+      //   console.log(o);
+    })
+    process.stdout.on('error', function(err) {
+
+            console.log(err.message);
+        }
+
+    )
+}
+
 
 
 var qs =require('qs');
@@ -112,17 +133,37 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
     console.log('a user connected');
     socket.on("chat message",function (data) {
-        console.log("message from client: "+data)
+        console.log("message from client: "+data);
         socket.emit('mm',{"message":data})
+        socket.broadcast.emit('mm',{"message":data})
 
     })
 
 });
 
-app.get('/hi', function(req, res){
-    console.log("hi")
-    res.send("hi lll")
-    io.emit('ioe',{"message":"this is io en"} );
+
+    //
+    //
+    //  ;
+
+app.post('/py', function(req, res) {
+    let body =''
+    req.on('data',chunk=>{
+        body+= chunk.toString();
+    });
+    req.on('end',()=>{
+        console.log(body);
+        res.end("server get data : ")
+    })
+
+//    res.send("server get data : ")
+   // console.log(data)
+    //dec(data,function (de) {
+    //  console.log(de)
+    //io.emit('py',{"message":de} )
+    //})
+
+//}
 });
 
 http.listen(3300,function(){

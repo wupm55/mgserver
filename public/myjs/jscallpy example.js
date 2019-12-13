@@ -1,13 +1,27 @@
-let spawn = require("child_process").spawn;
-let process = spawn('python',["./jscallpy.py",
-    "get2",1,2] );
-process.stdout.on('data', function(data) {
 
+
+
+function dec(str){
+    let child =  require("child_process")
+let spawn = child.spawn;
+let process = spawn('python',["./jscallpy.py",
+    "mydecode", str] );
+let result = ''
+process.stdout.on('data', function(data) {
     let o=(data.toString());
-    let a=JSON.parse(o);
-    console.log(Object.values(a));
+    //let a=JSON.parse(o);
+    result = o
+    console.log(o);
 })
 process.stdout.on('error', function(err) {
 
     console.log(err.message);
-})
+}
+
+)
+return result
+}
+
+let x="pyData=二二"
+var r= dec(x)
+console.log('result:'+r)

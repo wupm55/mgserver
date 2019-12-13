@@ -1,8 +1,8 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
-//const url = 'mongodb://10.24.4.89:27017';
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb://10.24.4.89:27017';
+//const url = 'mongodb://localhost:27017';
 const dbName = 'myproject';
 
 const mt = require( "./myTools");
