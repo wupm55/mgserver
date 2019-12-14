@@ -17,8 +17,6 @@ def evalarg(args):
             x.append(i)
      return x
 
-
-
 func=eval(sys.argv[1])
 args=sys.argv[2:]
 x=evalarg(args)

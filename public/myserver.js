@@ -1,40 +1,16 @@
 
 const mg = require( "./myjs/mgCRUD");
-
 var express = require('express');
-var app = express();
-
-var child =  require("child_process")
-function dec(str="pyData=s",func){
-
-    let spawn = child.spawn;
-    let process = spawn('python',["./myjs/jscallpy.py",
-        "mydecode", str] );
-    let result = '';
-    process.stdout.on('data', function(data) {
-         let o=(data.toString());
-        //let a=JSON.parse(o);
-        func(o)
-      //   console.log(o);
-    })
-    process.stdout.on('error', function(err) {
-
-            console.log(err.message);
-        }
-
-    )
-}
-
-
-
 var qs =require('qs');
+const BSON = require('bson');
+const {parse}=require('querystring')
 
+var app = express();
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-
 app.get('/filter/:filter', function (req, res) {
     // your code goes here
     let filter=qs.parse(req.params.filter);
@@ -43,7 +19,6 @@ app.get('/filter/:filter', function (req, res) {
         res.send(doc);
     })
 });
-
 app.get('/mapheader/:filter', function (req, res) {
     // your code goes here
     let filter=qs.parse(req.params.filter);
@@ -106,7 +81,6 @@ app.get('/engine/:filter', function (req, res) {
 
     })
 });
-
 app.get('/enginedata/:filter', function (req, res) {
     // your code goes here
     let filter=qs.parse(req.params.filter);
@@ -117,12 +91,10 @@ app.get('/enginedata/:filter', function (req, res) {
 
     })
 });
-
 app.use(express.static(__dirname+'/public',{index:'index.html'}));
-
 app.listen(3000)
 
-var app = require('express')();
+//var app = require('express')();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
@@ -141,31 +113,22 @@ io.on('connection', function(socket){
 
 });
 
-
-    //
-    //
-    //  ;
-
 app.post('/py', function(req, res) {
-    let body =''
+    let body = []
     req.on('data',chunk=>{
-        body+= chunk.toString();
+        body.push(chunk)
     });
     req.on('end',()=>{
-        console.log(body);
-        res.end("server get data : ")
+        res.end("server got data!")
+        let buf=[]
+        buf=Buffer.concat(body)
+        const data = BSON.deserialize(buf);
+        console.log(data)
+         io.emit('py',{"message":data} )
     })
-
-//    res.send("server get data : ")
-   // console.log(data)
-    //dec(data,function (de) {
-    //  console.log(de)
-    //io.emit('py',{"message":de} )
-    //})
-
-//}
 });
 
+
 http.listen(3300,function(){
-    console.log('listening on *:3000');
+    console.log('listening on *:3300');
 });

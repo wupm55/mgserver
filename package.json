@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.19.0",
+    "bson": "^4.0.2",
     "core-js": "^3.4.5",
     "mongodb": "^3.3.5",
     "promise-mongodb": "^1.1.0",
