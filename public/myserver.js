@@ -3,7 +3,7 @@ const mg = require( "./myjs/mgCRUD");
 var express = require('express');
 var qs =require('qs');
 const BSON = require('bson');
-const {parse}=require('querystring')
+
 
 var app = express();
 app.use(function(req, res, next) {
@@ -42,6 +42,7 @@ app.get('/tmapdata/:filter', function (req, res) {
         console.log(doc);
     })
 });
+
 app.get('/cmapdata/:filter', function (req, res) {
     // your code goes here
     let filter=qs.parse(req.params.filter);
@@ -81,6 +82,7 @@ app.get('/engine/:filter', function (req, res) {
 
     })
 });
+
 app.get('/enginedata/:filter', function (req, res) {
     // your code goes here
     let filter=qs.parse(req.params.filter);
@@ -113,6 +115,42 @@ io.on('connection', function(socket){
 
 });
 
+app.post('/gantt/', function(req, res) {
+    let body = []
+    req.on('data',chunk=>{
+        body.push(chunk)
+    });
+    req.on('end',()=>{
+        res.end("server got data!")
+        let buf=[]
+        buf=Buffer.concat(body)
+        const data = BSON.deserialize(buf);
+        console.log(data)
+        let filter = {"_id":data._id};
+        mg.mgFindOneAndUpdate("project","gantt",filter,data)
+        res.end('done!')
+    })
+});
+
+app.get('/gantt/:filter', function (req, res) {
+    // your code goes here
+    let filter=qs.parse(req.params.filter);
+    console.log(filter)
+    let fields={'_id':0};
+    mg.mgFind("project", "gantt", filter,fields,0).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
+});
+app.get('/gantt/', function (req, res) {
+    // your code goes here
+     let fields={'_id':0};
+    mg.mgFind("project", "gantt", {},fields,0).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
+});
+
 app.post('/py', function(req, res) {
     let body = []
     req.on('data',chunk=>{
@@ -127,6 +165,7 @@ app.post('/py', function(req, res) {
          io.emit('py',{"message":data} )
     })
 });
+
 
 
 http.listen(3300,function(){
