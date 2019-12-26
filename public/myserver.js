@@ -114,7 +114,22 @@ io.on('connection', function(socket){
     })
 
 });
-
+app.post('/memo/', function(req, res) {
+    let body = []
+    req.on('data',chunk=>{
+        body.push(chunk)
+    });
+    req.on('end',()=>{
+        res.end("server got data!")
+        let buf=[]
+        buf=Buffer.concat(body)
+        const data = BSON.deserialize(buf);
+        console.log(data)
+        let filter = {"title":data.title};
+        mg.mgFindOneAndUpdate("memo","editor",filter,data)
+        res.end('done!')
+    })
+});
 app.post('/gantt/', function(req, res) {
     let body = []
     req.on('data',chunk=>{
