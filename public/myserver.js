@@ -83,6 +83,8 @@ app.get('/engine/:filter', function (req, res) {
     })
 });
 
+
+
 app.get('/enginedata/:filter', function (req, res) {
     // your code goes here
     let filter=qs.parse(req.params.filter);
@@ -114,6 +116,33 @@ io.on('connection', function(socket){
     })
 
 });
+
+const fileUpload = require('express-fileupload');
+app.use( fileUpload() );
+//app.use(express.static('public'));
+app.use('/img/', express.static("D:/img/"));
+app.post('/img/', function(req, res) {
+    console.log('det')
+    if(req.files === null){
+        return res.status(400).json({msg:'no file uploaded'});
+   console.log("files:"+req.files)
+    }
+    const file = req.files.upload;
+    console.log(file)
+   file.mv(`D:/img/${file.name}`, err => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send(err);
+        }
+        // 若无错误 返回一个 json
+        // 我们计划上传文件后 根据文件在服务器上的路径 显示上传后的文件
+        // 随后我们会在 react 组件中实现
+        // 在客户端中的 public 文件夹下创建 uploads 文件夹 用于保存上传的文件
+        res.json({fileName: file.name, filePath: `/img/${file.name}`,url:`http://localhost:3300/img/${file.name}`});
+        console.log(`saved in: http://localhost:3300/img/${file.name}`);
+    });
+});
+
 app.post('/memo/', function(req, res) {
     let body = []
     req.on('data',chunk=>{
@@ -184,5 +213,6 @@ app.post('/py', function(req, res) {
 
 
 http.listen(3300,function(){
+
     console.log('listening on *:3300');
 });
