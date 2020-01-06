@@ -106,6 +106,8 @@ app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
 
+
+
 io.on('connection', function(socket){
     console.log('a user connected');
     socket.on("chat message",function (data) {
@@ -138,8 +140,8 @@ app.post('/img/', function(req, res) {
         // 我们计划上传文件后 根据文件在服务器上的路径 显示上传后的文件
         // 随后我们会在 react 组件中实现
         // 在客户端中的 public 文件夹下创建 uploads 文件夹 用于保存上传的文件
-        res.json({fileName: file.name, filePath: `/img/${file.name}`,url:`http://localhost:3300/img/${file.name}`});
-        console.log(`saved in: http://localhost:3300/img/${file.name}`);
+        res.json({fileName: file.name, filePath: `/img/${file.name}`,url:`http://${server.address().address}:3300/img/${file.name}`});
+        console.log(`saved in: http://${server.address().address}:3300/img/${file.name}`);
     });
 });
 
@@ -210,9 +212,66 @@ app.post('/py', function(req, res) {
     })
 });
 
-
-
-http.listen(3300,function(){
-
-    console.log('listening on *:3300');
+app.get('/listLib/', function (req, res) {
+    // your code goes here
+    let filter=req.params.filter;
+    if(!filter){filter={}}
+    let fields={'_id':0};
+    mg.mgFind("memo", "editor", filter,fields,0).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
 });
+
+
+function addRex(item){
+    if (typeof item ==='string')
+    {return {"$regex":item,"$options":"xi"};}
+    else {
+        return item
+    }
+}
+
+app.get('/listSearch/:filter', function (req, res) {
+    // your code goes here
+    let filter=qs.parse(req.params.filter);
+    if(!filter){filter={}}
+    let filterFlex={...filter};
+    filterFlex.content=addRex(filterFlex.content)
+    console.log(filterFlex)
+    let fields={'_id':0};
+    mg.mgFind("memo", "editor", filterFlex,fields,0).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
+});
+
+app.get('/listLib/:filter', function (req, res) {
+    // your code goes here
+    let filter=qs.parse(req.params.filter);
+    if(!filter){filter={}}
+
+    let fields={'_id':0};
+    mg.mgFind("memo", "editor",filter ,fields,0).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
+});
+
+
+
+
+var server=http.listen(3300,'10.24.4.33',function(){
+
+    console.log(`listening on ${server.address().address}:3300`);
+
+});
+
+
+
+app.get('/ok/configurationjs', function(req, res){
+    console.log(req)
+    let response={"versionPlatform":"unknown","editorParameters":{},"imageFormat":"svg","CASEnabled":false,"parseModes":["latex"],"editorToolbar":"","editorAttributes":"width=570, height=450, scroll=no, resizable=yes","base64savemode":"default","modalWindow":true,"version":"7.14.0.1421","enableAccessibility":true,"saveMode":"xml","saveHandTraces":false,"editorUrl":"https://www.wiris.net/demo/editor/editor","editorEnabled":true,"chemEnabled":true,"CASMathmlAttribute":"alt","CASAttributes":"width=640, height=480, scroll=no, resizable=yes","modalWindowFullScreen":false,"imageMathmlAttribute":"data-mathml","hostPlatform":"unknown","wirisPluginPerformance":true}
+    res.json(response);
+})
+
