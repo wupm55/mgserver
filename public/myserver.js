@@ -127,10 +127,13 @@ app.post('/img/', function(req, res) {
     console.log('det')
     if(req.files === null){
         return res.status(400).json({msg:'no file uploaded'});
-   console.log("files:"+req.files)
+  // console.log("files:"+req.files)
     }
     const file = req.files.upload;
-    console.log(file)
+  //  console.log(file)
+    if(file.name==='image.png'){
+        file.name='image'+Math.floor(Math.random()*100000000000000000000)+'.png';
+    }
    file.mv(`D:/img/${file.name}`, err => {
         if (err) {
             console.error(err);
@@ -261,7 +264,7 @@ app.get('/listLib/:filter', function (req, res) {
 
 
 
-var server=http.listen(3300,'10.24.4.33',function(){
+var server=http.listen(3300,'192.168.3.220',function(){
 
     console.log(`listening on ${server.address().address}:3300`);
 
