@@ -7,7 +7,7 @@ const dbName = 'myproject';
 
 const mt = require( "./myTools");
 
-async function mgFind(dbName,collName,filter,fields,n=0){
+async function mgFind(dbName,collName,filter,fields,n=0,numberize=true){
     const client = new MongoClient(url,{ useUnifiedTopology: true });
     try {
         await client.connect();
@@ -17,7 +17,10 @@ async function mgFind(dbName,collName,filter,fields,n=0){
         const col = db.collection(collName);
         // Get first two documents that match the query
       //  let f = JSON.parse(filter);
-        let fn = mt.numerizeObj(filter);
+        let fn=filter;
+        if(numberize) {
+           fn = mt.numerizeObj(filter);
+        }
       //  let fields={'PN':1,'_id':0};
         const docs = await col.find(fn).project(fields).limit(n).toArray();
         console.log(fn);
@@ -38,7 +41,6 @@ async function mgFindOneAndUpdate(dbName,collName,filter,newData) {
         console.log("Connected correctly to server");
 
         const db = client.db(dbName);
-
         // Get the findAndModify collection
         const col = db.collection(collName);
         let r;

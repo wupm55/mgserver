@@ -132,7 +132,8 @@ app.post('/img/', function(req, res) {
     const file = req.files.upload;
   //  console.log(file)
     if(file.name==='image.png'){
-        file.name='image'+Math.floor(Math.random()*100000000000000000000)+'.png';
+        file.name='image'+Math.floor(Math.random()*10000000000000000)+'.png';
+        console.log(file.name)
     }
    file.mv(`D:/img/${file.name}`, err => {
         if (err) {
@@ -164,6 +165,59 @@ app.post('/memo/', function(req, res) {
         res.end('done!')
     })
 });
+
+app.post('/qualityrecord/', function(req, res) {
+    let body = []
+    req.on('data',chunk=>{
+        body.push(chunk)
+    });
+    req.on('end',()=>{
+        res.end("server got data!")
+        let buf=[]
+        buf=Buffer.concat(body)
+        const data = BSON.deserialize(buf);
+        console.log(data)
+        let filter = {"engineNumber":data.engineNumber};
+        mg.mgFindOneAndUpdate("quality","record",filter,data)
+        res.end('done!')
+    })
+});
+
+app.get('/qualitylist/', function (req, res) {
+    // your code goes here
+    let filter=req.params.filter;
+    if(!filter){filter={}}
+    let fields={'recordDate':1,'engineNumber':1,'repairDate':1};
+    mg.mgFind("quality", "record", filter,fields,0,false).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
+});
+
+app.get('/qualitylist/:filter', function (req, res) {
+    // your code goes here
+    let filter=qs.parse(req.params.filter);
+    console.log(filter)
+    let fields={'recordDate':1,'engineNumber':1,'repairDate':1};
+    mg.mgFind("quality", "record", filter,fields,0,false).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
+});
+
+
+app.get('/qualityrecord/:filter', function (req, res) {
+    // your code goes here
+    let filter=qs.parse(req.params.filter);
+    console.log(filter)
+    let fields={'_id':0};
+    mg.mgFind("quality", "record", filter,fields,0,false).then(doc=>{
+        res.send(doc);
+        console.log(doc);
+    })
+});
+
+
 app.post('/gantt/', function(req, res) {
     let body = []
     req.on('data',chunk=>{
@@ -215,6 +269,7 @@ app.post('/py', function(req, res) {
     })
 });
 
+
 app.get('/listLib/', function (req, res) {
     // your code goes here
     let filter=req.params.filter;
@@ -264,7 +319,7 @@ app.get('/listLib/:filter', function (req, res) {
 
 
 
-var server=http.listen(3300,'192.168.3.220',function(){
+var server=http.listen(3300,'localhost',function(){
 
     console.log(`listening on ${server.address().address}:3300`);
 
